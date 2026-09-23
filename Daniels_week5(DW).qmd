@@ -1,0 +1,95 @@
+---
+title: "Daniels_week5(DW)"
+format:
+  html: default
+  pdf: default
+---
+
+###Natalie Daniels 
+###Problem set 5 
+
+##Install tidyveerse packages
+install.packages("tidyverse")
+library(tidyverse)
+library(haven)
+
+
+
+### 1. Use the Cooperative Congressional Election Study/Cooperative Election Study (CCES/CES) Cumulative file.
+
+setwd("~/Downloads")
+cc <- readRDS("cumulative_2006-2024.rds")
+cc
+
+### 2. Use only the 2024 data. Recode the 5 category ideology variable to a three category variable: liberal, moderate, conservative.
+
+names(cc)
+cc24 <- cc |> filter(year == 2024) |>
+  mutate(ideo3 = case_when(
+    ideo5 %in% 1:2 ~ "Liberal",
+    ideo5 == 3   ~ "Moderate",
+    ideo5 %in% 4:5 ~ "Conservative",
+    ideo5 %in% 6:9 ~ NA_character_
+  ))
+
+### 3. Recode the presidential vote variable to look just at two party vote (in other words, recode vote so that respondents who reported voting for candidates other than Trump or Harris are “missing”).
+"voted_pres_party""
+
+cc24 <- cc24 |>
+  mutate(vote2 = case_when(
+    voted_pres_party == "Democratic" ~ "Harris",
+    voted_pres_party == "Republican" ~ "Trump",
+    .default = NA_character_
+  ))
+  
+cc24
+
+### 4. Create a table. What proportion of respondents who are liberal voted for Trump? What proportion of respondents who are conservative voted for Harris?
+
+
+library(dplyr)
+
+table1 <- cc24 |>
+  filter(!is.na(ideo3), !is.na(vote2)) |>
+  count(ideo3, vote2) |>
+  group_by(ideo3) |>
+  mutate(prop = n / sum(n)) |>
+  ungroup()
+  
+table1
+
+  
+### 5. Find the variable that refers to whether people own or rent their home. Recode the variable so that “other” is missing.
+
+names(cc)
+ownhome <- cc |>
+  mutate(own_rent = case_when(
+    ownhome == 1 ~ "Own",
+    ownhome == 2 ~ "Rent",
+    .default = NA_character_
+  ))
+  
+ownhome
+
+### 6. Create a table. What portion of people who own their homes voted for Trump? Harris? What portion of people who rented voted for Trump? Harris?
+  
+cc |>
+  filter(!is.na(own_rent), !is.na(vote2)) |>
+  count(own_rent, vote2) |>
+  group_by(own_rent) |>
+  mutate(prop = n / sum(n))  
+  
+  ##why issnt this working...
+  
+### 7. Finally, locate the education variable. Recode the variable so that those with a high school degree or less are in one category, those with some college but less than a four year degree are in a second, those with a college degree are in a third, and those with a post-grad degree are in a fourth.
+
+names(cc)##use educ""
+#1 hs or less
+#2 college less
+#3 college degree
+#4 post grad degree
+
+### 8. Create a table. What does education tell us about vote in the 2024 election?
+
+
+
